@@ -4,7 +4,7 @@ using Photon.Pun;
 using System.Collections;
 
 
-public class PlayerManager : MonoBehaviourPunCallbacks
+public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     [Tooltip("The Beams GameObject to control")]
     [SerializeField] private GameObject beams;
@@ -12,6 +12,21 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     [Tooltip("The current Health of our player")]
     public float Health = 1f;
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(isFiring);
+            stream.SendNext(Health);
+        }
+        else
+        {
+            this.isFiring = (bool)stream.ReceiveNext();
+            this.Health = (float)stream.ReceiveNext();
+        }
+    }
+
 
     private void Awake()
     {
@@ -25,11 +40,31 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private void Start()
+    {
+        CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
+
+        if (_cameraWork != null)
+        {
+            if (photonView.IsMine)
+            {
+                _cameraWork.OnStartFollowing();
+            }
+            else
+            {
+                Debug.LogError("<Color=Red><a>Missing</a></Color> CameraWork Component on playerPrefab.", this);
+            }
+        }
+    }
+
     private void Update()
     {
         if (photonView.IsMine)
         {
-            ProccessInputs();
+            if (photonView.IsMine)
+            {
+                ProccessInputs();
+            }
             if (Health <= 0)
             {
                 GameManager.Instance.LeaveRoom();

@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerAnimatorManager : MonoBehaviour
+public class PlayerAnimatorManager : MonoBehaviourPun
 {
     private Animator animator;
     [SerializeField] private float directionDampTime = 0.25f;
@@ -20,6 +19,10 @@ public class PlayerAnimatorManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        if (photonView.IsMine == false && PhotonNetwork.IsConnected == true)
+        {
+            return;
+        }
         if (!animator)
         {
             return;
@@ -46,4 +49,6 @@ public class PlayerAnimatorManager : MonoBehaviour
         animator.SetFloat("Direction", h, directionDampTime, Time.deltaTime);
     }
     #endregion
-}
+
+ 
+ }

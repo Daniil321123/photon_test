@@ -43,7 +43,7 @@ public class CameraWork : MonoBehaviour
         }
     }
 
-    private void OnStartFollowing()
+    public void OnStartFollowing()
     {
         cameraTransform = Camera.main.transform;
         isFollowing = true;
